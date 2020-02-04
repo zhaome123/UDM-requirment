@@ -9,7 +9,7 @@ Pixy2 pixy;
 #define PWMB 5
 #define A A0
 int s1 = 59, s2 = 42;
-int  Mx, mx1, mx2, my1, my2,Area1, Area2, w1, w2, h1, h2, D,countTurn = 0, Di,vector;
+int  Mx, mx1, mx2, my1, my2, Area1, Area2, w1, w2, h1, h2, D, countTurn = 0, Di, vector, Speed1, Speed2, Time = 0;
 boolean Flag = 0;
 void setup()
 {
@@ -29,41 +29,43 @@ void setup()
   digitalWrite(AIN2, HIGH);
   digitalWrite(BIN1, LOW);
   digitalWrite(BIN2, HIGH);
-//  speedControl('G', 0, 0);
+  //  speedControl('G');
 
-//pixy.changeProg("color");
-//-----------------------------color
+  //pixy.changeProg("color");
+  //-----------------------------color
 
   while (Flag == 0)
-  { 
+  {
     pixy.ccc.getBlocks();
     voidProject();
-    if (pixy.ccc.numBlocks = 1)
+    if (pixy.ccc.numBlocks == 1)
     {
       Serial.print("one block");
       //---------------------------------------------------when only find one block
       OneBlockFollow();
-//      pixy.changeProg("line");
+      //      pixy.changeProg("line");
     }
     else if (pixy.ccc.numBlocks > 1)
     {
       Serial.print("two block");
       TwoBlockFollow();
-//      pixy.changeProg("line");
+      //      pixy.changeProg("line");
     }
     else
     {
       if (countTurn < 100) //---------------------------------------------need test turn speed
       {
-        speedControl('o', 59, 0); //------------------------------------------
+        Speed1 = 59;
+        Speed2 = 0;
+        speedControl('o'); //------------------------------------------
         delay(30);
         countTurn = countTurn + 10;
-        
+
       }
       else
       {
-        speedControl('R', 0, 0); //-----------------------------------------------------------
-       
+        speedControl('R'); //-----------------------------------------------------------
+
         delay(70);
       }
     }
@@ -76,50 +78,58 @@ void setup()
 
   //-----------------------------color
 }
-void speedControl(char ControlWord, int Speed1, int Speed2)
+void speedControl(char ControlWord)
 {
   switch (ControlWord)
   { case 'G':
-       analogWrite(PWMA, 59);
-        analogWrite(PWMB, 46);
-        break;
-      
+      analogWrite(PWMA, 59);
+      analogWrite(PWMB, 42);
+      break;
+
     case 'L':
-       analogWrite(PWMA, 37);
-        analogWrite(PWMB, 52);
-        break;
-      
+      analogWrite(PWMA, 42);//37
+      analogWrite(PWMB, 46);
+      break;
+    case 'l':
+      analogWrite(PWMA, 0);
+      analogWrite(PWMB, 42);
+      break;
     case 'R':
-      
-        analogWrite(PWMA, 63);
-        analogWrite(PWMB, 45);
-        break;
-      
+
+      analogWrite(PWMA, 63);
+      analogWrite(PWMB, 36);
+      break;
+    case'r':
+      analogWrite(PWMA, 59);
+      analogWrite(PWMB, 0);
     default:
-      
-        analogWrite(PWMA, Speed1);
-        analogWrite(PWMB, Speed2);
-        break;
-      
+
+      analogWrite(PWMA, Speed1);
+      analogWrite(PWMB, Speed2);
+      break;
+
   }
 }
-void voidProject()//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------void project
+void voidProject()
 { Di = analogRead(A);
   Serial.println(Di);
   if (Di <= 10)
-  {
-    speedControl('STOP', 0, 0);
+  { Speed1 = 0;
+    Speed2 = 0;
+    speedControl('S');//-----------------stop
     while (Di <= 10)
     { Di = analogRead (A);
       delay(30);
     }
   }
   else if (Di <= 24 )
-  {
-    speedControl('Restart', 55, 38); //-----------------------------------------------------------------
+  { Speed1 = 55;
+    Speed2 = 38;
+    speedControl('C'); //-----------------continue
   }
 }
-
+//-----------------------------------------------------------------------------
 void OneBlockFollow()
 {
   voidProject();
@@ -133,23 +143,23 @@ void OneBlockFollow()
   Serial.println(w1);
   Serial.println(h1);
   Serial.println(Area1);
-  if (Area1 >= 7000) {
+  if (Area1 >= 10000) {
 
     pixy.changeProg("line");
-    speedControl('G', 0, 0);
+    speedControl('G');
     Flag = 1;
   }
   else if (Mx <= 105) {
-    speedControl('L', 0, 0);
+    speedControl('L');
     delay(70);
   }
   else if (Mx >= 210)
   {
-    speedControl('R', 0, 0);
+    speedControl('R');
     delay(70);
   }
   else {
-    speedControl('G', 0, 0);
+    speedControl('G');
     delay(70);
   }
 }
@@ -182,10 +192,10 @@ void TwoBlockFollow()
   //compare block position
   if (mx1 > mx2)
   {
-     if (D < 10 && Area2 > 400 && Area1 > 400)
+    if (D < 15 && Area2 > 400 && Area1 > 400)
     {
       pixy.changeProg("line");
-      speedControl('G', 0, 0);
+      speedControl('G');
       Flag = 1;
     }
     //--------------------------------------------------------right vichol
@@ -196,7 +206,7 @@ void TwoBlockFollow()
       analogWrite(PWMB, s2);
     }
 
-    else if (my1 > 150)
+    else if (my1 > 138)
     {
       digitalWrite(BIN1, HIGH);
       digitalWrite(BIN2, LOW);
@@ -204,14 +214,14 @@ void TwoBlockFollow()
     }
     else analogWrite(PWMB, 0);
     //--------------------------------------------------------left vichol
-     if (my2 < 81)
+    if (my2 < 81)
     {
       digitalWrite(AIN1, LOW);
       digitalWrite(AIN2, HIGH);
       analogWrite(PWMA, s1);
     }
 
-    else if (my1 > 150)
+    else if (my1 > 138)
     {
       digitalWrite(AIN1, HIGH);
       digitalWrite(AIN2, LOW);
@@ -224,7 +234,7 @@ void TwoBlockFollow()
   }
   else
   {
-    if (D < 10 && Area2 > 400 && Area1 > 400)
+    if (D < 15 && Area2 > 400 && Area1 > 400)
     {
       pixy.changeProg("line");
       digitalWrite(AIN1, LOW);
@@ -243,7 +253,7 @@ void TwoBlockFollow()
       analogWrite(PWMB, s2);
     }
 
-    else if (my2 > 150)
+    else if (my2 > 138)
     {
       digitalWrite(BIN1, HIGH);
       digitalWrite(BIN2, LOW);
@@ -258,7 +268,7 @@ void TwoBlockFollow()
       analogWrite(PWMA, s1);
     }
 
-    else if (my1 > 150)
+    else if (my1 > 138)
     {
       digitalWrite(AIN1, HIGH);
       digitalWrite(AIN2, LOW);
@@ -271,7 +281,6 @@ void TwoBlockFollow()
 }
 void loop() {
   // put your main code here, to run repeatedly:
-  
 
   pixy.line.getMainFeatures();
   pixy.line.getAllFeatures();
@@ -302,26 +311,79 @@ void loop() {
   Serial.println(tana);
   Serial.print("angle______________ ");
   Serial.println(angle);
-  if ((tana > -1.25 && tana < -0.94) || (tana > 1.45 && tana < 1.8))
+  if  (tana >= -0.18 && tana < -0.09)
   {
-    speedControl('G', 0, 0);
+    speedControl('G');
     Serial.println("GS");
-    delay(300);
   }
-  else if ((tana < -0.35 && tana >= -0.96) || (tana < 0.40) && (tana >= -0.04))
+  else if (tana < -0.8 && tana >= -3.5)
   {
-    speedControl('R', 0, 0);
-    Serial.println("TR");
-    delay(300);
+    speedControl('R');
+    Serial.println("TR1");
   }
-  else if ((tana < 1.3 && tana > 1.09) || (tana > 1.8) || (tana > 0.40 && tana < 0.89))
-  { speedControl('L', 0, 0);
-    Serial.println("TL");
-    delay(300);
+  else if (tana < -0.18 && tana >= -0.8)
+  {
+    speedControl('r');
+    Serial.println("TR2");
   }
+  else if (tana < 3 && tana >= 0.73)//0.67
+  { speedControl('L');
+    Serial.println("TL1");
+  }
+  else if (tana >= 0 && tana < 0.73)
+  {
+    speedControl('l');
+    Serial.println("TL2");
+  }
+
   else {
-    speedControl('G', 0, 0);
+    speedControl('G');
     Serial.println("gs");
-    delay(300);
+  }
+  if (pixy.line.numVectors != 0) //----------------------------------------refind road
+  { tana = -0.10;
+    Time = Time + 1;
+    if (Time = 7)
+    { speedControl('r');
+      delay(750);
+      while (Flag == 0)
+      {
+        pixy.ccc.getBlocks();
+        voidProject();
+        if (pixy.ccc.numBlocks == 1)
+        {
+          Serial.print("one block");
+          //---------------------------------------------------when only find one block
+          OneBlockFollow();
+        }
+        else if (pixy.ccc.numBlocks > 1)
+        {
+          Serial.print("two block");
+          TwoBlockFollow();
+        }
+        else
+        {
+          if (countTurn < 100) //---------------------------------------------need test turn speed
+          {
+            Speed1 = 59;
+            Speed2 = 0;
+            speedControl('o'); //------------------------------------------
+            delay(30);
+            countTurn = countTurn + 10;
+            Flag = 0;
+          }
+          else
+          {
+            speedControl('R'); //-----------------------------------------------------------
+
+            delay(70);
+          }
+        }
+
+      }
+
+    }
+    else Time = 0;
+
   }
 }

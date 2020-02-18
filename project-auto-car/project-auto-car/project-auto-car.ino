@@ -9,7 +9,7 @@ Pixy2 pixy;
 #define PWMB 5
 #define A A0
 int s1 = 59, s2 = 42;
-int  Mx, mx1, mx2, my1, my2, Area1, Area2, w1, w2, h1, h2, D, countTurn = 0, Di, vector, Speed1, Speed2, countRefind = 0;
+int  Mx, mx1, mx2, my1, my2, Area1, Area2, w1, w2, h1, h2, D, countTurn = 0, Di, vector, Speed1, Speed2, countRefind = 0,countBack =0, countback =0;
 boolean Flag = 0;
 void setup()
 {
@@ -135,6 +135,25 @@ void voidProject()
     while (Di <= 23)
     { Di = analogRead (A);
       delay(30);
+      countback++;
+      if (countback % 60 == 59)
+      {
+        digitalWrite(AIN1, HIGH);
+        digitalWrite(AIN2, LOW);
+        digitalWrite(BIN1, HIGH);
+        digitalWrite(BIN2, LOW);
+        analogWrite(PWMA, 80);
+        analogWrite(PWMB, 42);
+        delay(1000);
+        digitalWrite(AIN1, LOW);
+        digitalWrite(AIN2, HIGH);
+        digitalWrite(BIN1, LOW);
+        digitalWrite(BIN2, HIGH);
+        analogWrite(PWMA, 1);
+        analogWrite(PWMB, 1);
+
+
+      }
     }
   }
   else if (Di <= 30 )
@@ -394,6 +413,25 @@ void loop() {
       analogWrite(PWMA, 1);
       analogWrite(PWMB, 1);
       countRefind = 0;
+      countBack++;
+      if (countBack % 5 == 4)
+      {
+        digitalWrite(AIN1, LOW);
+        digitalWrite(AIN2, HIGH);
+        digitalWrite(BIN1, HIGH);
+        digitalWrite(BIN2, LOW);
+        analogWrite(PWMA, 59);
+        analogWrite(PWMB, 42);
+        delay(2000);
+        digitalWrite(AIN1, LOW);
+        digitalWrite(AIN2, HIGH);
+        digitalWrite(BIN1, LOW);
+        digitalWrite(BIN2, HIGH);
+        analogWrite(PWMA, 1);
+        analogWrite(PWMB, 1);
+
+
+      }
       while (Flag == 0)
       {
         pixy.changeProg("color");

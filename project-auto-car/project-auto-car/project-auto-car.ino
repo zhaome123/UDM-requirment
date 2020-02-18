@@ -142,8 +142,8 @@ void voidProject()
         digitalWrite(AIN2, LOW);
         digitalWrite(BIN1, HIGH);
         digitalWrite(BIN2, LOW);
-        analogWrite(PWMA, 80);
-        analogWrite(PWMB, 42);
+        analogWrite(PWMA, 100);
+        analogWrite(PWMB, 40);
         delay(1000);
         digitalWrite(AIN1, LOW);
         digitalWrite(AIN2, HIGH);
